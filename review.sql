@@ -107,4 +107,3 @@ select INSTR('1234AA7A9','AA',1,2) FROM DUAL;
 select INSTR('1234AA7A9AA','AA',-1,1) FROM DUAL;
 -- 2nd occurence of AA on or after the last char (reverse search) = 5. although the search is reverse, the index/positions are from left to right.
 select INSTR('1234AA7A9AA','AA',-1,2) FROM DUAL; 
-
