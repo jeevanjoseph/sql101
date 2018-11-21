@@ -109,3 +109,58 @@ select INSTR('1234AA7A9AA','AA',-1,1) FROM DUAL;
 -- 2nd occurence of AA on or after the last char (reverse search) = 5. although the search is reverse, the index/positions are from left to right.
 select INSTR('1234AA7A9AA','AA',-1,2) FROM DUAL; 
 
+
+-- SUBSTR
+-- Syntax: SUBSTR(s, pos, len)
+-- Parameters: s = a character string, required; pos = a number, required; len = a number, optional.
+-- Process: Extracts a substring from s, starting at the pos character of s and continuing for len number of characters. If len is omitted, then the substring starts as pos and runs through the end of s. If pos is negative, then the function starts at the end of the string and moves backward.
+-- Output: Character string.
+
+-- take from 5th char to the end. No length
+select substr('1234567890',5) from dual;
+-- take from the 5th char, two chars (5th included)
+select substr('1234567890',5,2) from dual;
+--  zero based indexes work here, returns the first char
+select substr('1234567890',0),substr('1234567890',1,1),substr('1234567890',0,1) from dual;    
+
+-- negaive or zero lengths will give a NULL. No errors
+select substr('1234567890',5,0), substr('1234567890',5,-1) from dual;
+select 'Hello' from Dual where substr('1234567890',5,0) IS null and substr('1234567890',5,-1) is null;
+
+-- CEIL
+-- Syntax: CEIL(n)
+-- Parameters: n is required and is any numeric data type.
+-- Process: CEIL returns the smallest integer that is greater than or equal to n.
+
+-- FLOOR
+-- Syntax: FLOOR(n)
+-- Parameters: n is required and is any numeric data type.
+-- Process: FLOOR returns the largest integer that is less than or equal to n.
+
+-- ROUND—Number
+-- Syntax: ROUND (n, i)
+-- Parameters: n is required, is any number, and can include decimal points. i is an integer and is optional—if omitted, it will default to 0.
+-- Process: n is rounded depending on the value of i. If i is zero, n is rounded off to the nearest whole number, in other words, zero decimal points. If i is a positive number, n is rounded to i places to the right of the decimal point. If i is a negative number, n is rounded to i places to the left of the decimal point. The number 5 is rounded away from zero.
+-- Output: If i is omitted, ROUND returns a value in the same numeric data type as n. If i is specified, ROUND returns a data type of NUMBER.
+
+-- Rounding works with the number of decimals desired. if desired decimals are more than available, nothing is done. Negative decimal points will round on the other side of the decimal.
+select CEIL(5.5), FLOOR(5.5), ROUND(5.5),ROUND(5.49), ROUND(5.49,1),ROUND(5.49,3), ROUND(5.49e3,3),ROUND(555.49,-1), ROUND(555.49,-2)from Dual;
+-- Automatic type conversion works when numbers are quoted, including scientific 'e to the power' notation 
+select CEIL('5.5'), FLOOR('5.5'), ROUND('5.5'),ROUND('5.49'), ROUND('5.49',1),ROUND('5.49',3), ROUND('5.49e2',2) from Dual;
+-- Auto type conversion cannot work with nin number strings ?
+select CEIL('21-NOV-18'),CEIL('A') from Dual;
+
+
+
+-- TRUNC—Number
+-- Syntax: TRUNC(n, i)
+-- Parameters: n is required, is any number, and can include decimal points. i is an integer and is optional—if omitted, it will default to 0.
+-- Process: TRUNC "rounds" toward zero; in other words, it truncates the numbers.
+-- Output: If i is omitted, TRUNC returns a value in the same numeric data type as n. If i is specified, TRUNC returns a data type of NUMBER.
+-- One way to think about this is that its like a FLOOR with a way to spceficy how many decimals to keep. 
+
+-- without the decimal, it pretty much works like a FLOOR, with the decimal, ir takes away the number of significant digits, and rounds then to 0.
+select TRUNC(5.5),TRUNC(5.49), TRUNC(5.49,1),TRUNC(5.49,3), TRUNC(5.49e3,3),TRUNC(555.49,-1), TRUNC(555.49,-2)from Dual;
+
+
+
