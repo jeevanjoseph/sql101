@@ -163,4 +163,66 @@ select CEIL('21-NOV-18'),CEIL('A') from Dual;
 select TRUNC(5.5),TRUNC(5.49), TRUNC(5.49,1),TRUNC(5.49,3), TRUNC(5.49e3,3),TRUNC(555.49,-1), TRUNC(555.49,-2)from Dual;
 
 
+-- ROUND—Date
+-- Syntax: ROUND(d, i)
+-- Parameters: d is a date (required); i is a format model (optional).
+-- Process: d is rounded off to the nearest date value, at a level of detail specified by i. 
+-- d is required and specifies a value of the DATE data type. 
+-- i is a format model and specifies the level of detail to which the DATE value will be rounded,
+-- in other words, to the nearest day, nearest hour, nearest year, and so on. i is optional; 
+-- if i is omitted, ROUND will default to a format model that returns a value of d rounded to the nearest whole day. 
+-- Values are biased toward rounding up. For example, when rounding off time, 12 noon rounds up to the next day.
+SELECT SYSDATE TODAY, ROUND(SYSDATE,'MM') ROUNDED_MONTH, ROUND(SYSDATE,'RR') ROUNDED_YEAR FROM   DUAL; 
 
+-- rounding without a format, rounds to the nearest day, 12:00 noon rounds to the next day and 11:59:59 rounds to the 00:00 of the current day  
+select to_char(round(to_date('16-DEC-2018 11:30:00','DD-MON-YYYY HH24:MI:SS')), 'DD-MON-YYYY HH24:MI:SS') "11:30:00", to_char(round(to_date('16-DEC-2018 12:00:00','DD-MON-YYYY HH24:MI:SS')), 'DD-MON-YYYY HH24:MI:SS') "12:00:00" from Dual ;
+-- HH, rounds to the nearest hour, 30th minute rounds up to the next hour
+select to_char(round(to_date('16-DEC-2018 11:30:00','DD-MON-YYYY HH24:MI:SS'),'HH'), 'DD-MON-YYYY HH24:MI:SS') "11:30:00", to_char(round(to_date('16-DEC-2018 11:29:59','DD-MON-YYYY HH24:MI:SS'),'HH'), 'DD-MON-YYYY HH24:MI:SS') " 11:29:59" from Dual ;
+-- DD rounds a date to the nearest Day. 12 noon rounds up to the next day.
+select to_char(round(to_date('16-DEC-2018 11:59:59','DD-MON-YYYY HH24:MI:SS'),'DD'), 'DD-MON-YYYY HH24:MI:SS') "11:59:59", to_char(round(to_date('16-DEC-2018 12:00:00','DD-MON-YYYY HH24:MI:SS'),'DD'), 'DD-MON-YYYY HH24:MI:SS') "12:00:00" from Dual ;
+-- MM Round a date to the 'nearest' month. 15th is rounded down, and 16th is rounded up
+select to_char(round(to_date('16-DEC-2018 11:29:00','DD-MON-YYYY HH24:MI:SS'),'MM'), 'DD-MON-YYYY HH24:MI:SS') "16th", to_char(round(to_date('15-DEC-2018 11:29:00','DD-MON-YYYY HH24:MI:SS'),'MM'), 'DD-MON-YYYY HH24:MI:SS') "15th" from Dual ;
+
+
+-- TRUNC—Date
+-- Syntax: TRUNC(d, i)
+-- Parameters: d is a date (required); i is a format model (optional).
+-- Process: Performs the same task as ROUND for dates, except TRUNC always rounds down.
+
+-- trunc without a format,  rounds to the 00:00 of the current day  
+select to_char(trunc(to_date('16-DEC-2018 11:30:00','DD-MON-YYYY HH24:MI:SS')), 'DD-MON-YYYY HH24:MI:SS') "11:30:00", to_char(trunc(to_date('16-DEC-2018 12:00:00','DD-MON-YYYY HH24:MI:SS')), 'DD-MON-YYYY HH24:MI:SS') " 12:00:00" from Dual ;
+-- HH, truncates to the start of the current hour
+select to_char(trunc(to_date('16-DEC-2018 11:30:00','DD-MON-YYYY HH24:MI:SS'),'HH'), 'DD-MON-YYYY HH24:MI:SS') "11:30:00", to_char(trunc(to_date('16-DEC-2018 11:29:59','DD-MON-YYYY HH24:MI:SS'),'HH'), 'DD-MON-YYYY HH24:MI:SS') " 11:29:59" from Dual ;
+-- DD truncates a date to the nearest Day. 12 noon rounds up to the next day.
+select to_char(trunc(to_date('16-DEC-2018 11:59:59','DD-MON-YYYY HH24:MI:SS'),'DD'), 'DD-MON-YYYY HH24:MI:SS') "11:59:59", to_char(trunc(to_date('16-DEC-2018 12:00:00','DD-MON-YYYY HH24:MI:SS'),'DD'), 'DD-MON-YYYY HH24:MI:SS') "12:00:00" from Dual ;
+-- MM Round a date to the 'nearest' month. 15th is rounded down, and 16th is rounded up
+select to_char(trunc(to_date('16-DEC-2018 11:29:00','DD-MON-YYYY HH24:MI:SS'),'MM'), 'DD-MON-YYYY HH24:MI:SS') "16th", to_char(trunc(to_date('15-DEC-2018 11:29:00','DD-MON-YYYY HH24:MI:SS'),'MM'), 'DD-MON-YYYY HH24:MI:SS') "15th" from Dual ;
+
+-- LAST_DAY
+-- Syntax: LAST_DAY(d)
+-- Parameters: d is a date, required.
+-- Process: Returns the last day of the month in which d falls.
+-- Output: Date.
+-- Example: Show the last days of February in 2020 and 2021.
+-- auto conversion works
+SELECT LAST_DAY(to_date('14-FEB-20','DD-MON-YY')), LAST_DAY ('20-FEB-21') FROM   DUAL; 
+
+-- ADD_MONTHS
+-- Syntax: ADD_MONTHS(d, n)
+-- Parameters: d is a date, required; n is a whole number, required.
+-- Process: Adds n months to d and returns a valid date value for the result.
+-- Output: Date.
+
+-- ading month to the last dat in a month, gives the last day of the next month. leap years included. 
+select ADD_MONTHS('27-Feb-2018',1), ADD_MONTHS('28-Feb-2018',1),ADD_MONTHS('28-Feb-2020',1),ADD_MONTHS('29-Feb-2020',1) from dual ;
+-- subtracting months works the same way
+select ADD_MONTHS('27-Feb-2018',-1), ADD_MONTHS('28-Feb-2018',-1),ADD_MONTHS('28-Feb-2020',-1),ADD_MONTHS('29-Feb-2020',-1) from dual ;
+
+-- TO_NUMBER
+-- Syntax: TO_NUMBER(e1, format_model, nls_parms)
+            -- NLS_NUMERIC_CHARACTERS = 'dg'	d = decimal character (see D in Table 6-1)
+            -- g = group separator (see G in Table 6-1)
+            -- NLS_CURRENCY = 'text'	text = local currency symbol (see L in Table 6-1)
+            -- NLS_ISO_CURRENCY = 'currency'	currency = international currency symbol
+-- G and D used in the format model. the nls chars param set the "redefined" vaues for G and D. 
+SELECT TO_NUMBER('17.000,23',  '999G999D99', 'nls_numeric_characters='',.'' ')  REFORMATTED_NUMBER FROM   DUAL; 
