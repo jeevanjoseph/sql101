@@ -228,7 +228,22 @@ select ADD_MONTHS('27-Feb-2018',-1), ADD_MONTHS('28-Feb-2018',-1),ADD_MONTHS('28
 SELECT TO_NUMBER('17.000,23',  '999G999D99', 'nls_numeric_characters='',.'' ')  REFORMATTED_NUMBER FROM   DUAL; 
 
 
--- FM lears up the extra spaces introduced by the formatting
+-- Date types
+--      DATE - Stores the century, year, month, date, hour, minute, and second. 
+--              When a string is coerced, RR or YY Format model interpret the century. Once stored, the output format does not affect the stored century info. 
+--              When a date is queried, it inlcudes the time stored. To compare dates without times, TRUNC can be used.
+-- TIMESTAMP - tracks franstional seconds in addition to date. default is to use 6 digits (percision) for storing the  franctional seconds.
+-- TIMESTAMP WITH TIME ZONE - includes the TZ offset or th TZ region name.
+--           - Two TZ with timezones are equal if they represent the same instant in UTC . 
+select 'they are the same', TO_TIMESTAMP_TZ ('1999-01-15 8:00:00 -8:00','YYYY-MM-DD HH24:MI:SS TZH:TZM'), TO_TIMESTAMP_TZ ('1999-01-15 11:00:00 -5:00','YYYY-MM-DD HH24:MI:SS TZH:TZM') 
+from dual 
+where TO_TIMESTAMP_TZ ('1999-01-15 8:00:00 -8:00','YYYY-MM-DD HH24:MI:SS TZH:TZM') = TO_TIMESTAMP_TZ ('1999-01-15 11:00:00 -5:00','YYYY-MM-DD HH24:MI:SS TZH:TZM') ;
+
+-- TIMESTAMP WITH LOCAL TIMEZONE - variarion on TS with TZ, but the date stored is in the DB tz, and the TZ offset is NOT stored. 
+--                               - when queried, the DB converts the date in to the user's local TZ as setup in the user session
+
+-- *** Date formatting ***
+-- FM clears up the extra spaces introduced by the formatting
 -- Day prints the day of the week in mixed case. DAY/day would have printed in upper/lower case. dAY = day, DaY=Day (only the first&second char matters).
 --   if the first char is lower, print all lower
 --   else // first char is upper
@@ -244,3 +259,27 @@ SELECT TO_NUMBER('17.000,23',  '999G999D99', 'nls_numeric_characters='',.'' ')  
 select TO_CHAR(SYSDATE,'FMDaY, "the" Ddth "of" Month, RRRR')  from dual;
 -- Shows how RR interprests date. once the DFATE object is created, its always put put the same way. RR and YY differ in interpretting a string represantatin as a DATE type.
 select TO_CHAR(TO_DATE('99','YY'), 'YYYY'), TO_CHAR(TO_DATE('99','RR'), 'YYYY'),TO_CHAR(TO_DATE('99','YY'), 'RRRR') from dual;
+-- Sample converting a number to a date.
+SELECT TO_DATE(11221999,'MMDDYYYY') "Time" FROM   DUAL; 
+
+
+-- CASE 
+-- Kind of like an if then else.
+-- There are two kinds - simple and searched. when no options match , a null is returned.
+-- The evaluation stop at the first match.
+-- There can be a total of 255 exprs, inlcuding the expr for the CASE, the optional ELSE, and each WHEN and TEN exprs.
+-- Simple - CASE <EXPR> WHEN <CONDITION> THEN <VALUE> ELSE <DEFAULT> END
+--   EXPR is sommething like a name or a condition like AGE>10. 
+--   CONDITIONS check the result of the expression. 
+--     Select name, age, case name when 'angelina' then 'maleficent' from Table
+-- searched -  CASE WHEN <EXPR> = <CONDITION> THEN <RESULT> 
+--     Here we can have multiple expressions which is the big differnce.
+--     SELECT name, age , CASE WHEN age >= 18 THEN 'adult' WHEN age < 18 THEN 'child' from table.
+-- HANDLING NULLS
+-- Simple CASE, the NULL is compared to the WHEN clause, and results in NULL!=NULL as expected. 
+Select CASE NULL when NULL THEN 'CASE : NULL == NULL' ELSE 'CASE : NULL !=NULL' END from Dual;
+
+-- Searched CASE, where a proper IS NULL check is employed, this returs NULL IS NULL as expected
+Select CASE WHEN NULL IS NULL THEN 'CASE : NULL IS NULL' ELSE 'CASE : NULL IS NOT NULL' END from Dual;
+-- DECODE, where NULL values arfe compared -- IS NULL not used -- return true. This is out of the ordinary. 
+Select DECODE(NULL,NULL,'DECODE: NULL==NULL','DECODE: NULL!=NULL') from Dual;
