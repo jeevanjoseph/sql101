@@ -226,3 +226,21 @@ select ADD_MONTHS('27-Feb-2018',-1), ADD_MONTHS('28-Feb-2018',-1),ADD_MONTHS('28
             -- NLS_ISO_CURRENCY = 'currency'	currency = international currency symbol
 -- G and D used in the format model. the nls chars param set the "redefined" vaues for G and D. 
 SELECT TO_NUMBER('17.000,23',  '999G999D99', 'nls_numeric_characters='',.'' ')  REFORMATTED_NUMBER FROM   DUAL; 
+
+
+-- FM lears up the extra spaces introduced by the formatting
+-- Day prints the day of the week in mixed case. DAY/day would have printed in upper/lower case. dAY = day, DaY=Day (only the first&second char matters).
+--   if the first char is lower, print all lower
+--   else // first char is upper
+--        if (second char is lower) => mixed case
+--        else => all upper case // second char is also upper.
+-- quoted string "the" passed through as is
+-- Ddth => DD TH. DD is day of month. TH adds the 1'ST', 'nd'. 'rd', 'th' appropriately. DD will cause TH, or RD, but Dd/dd will cause th,rd, etc.
+-- Month prints the complete month name in mixed case. MONTH = all upper case, month= all lower case. only the first two chars matter. 
+-- RRRR - prints Year
+--          YYYY -> print current Year
+--          RRRR -> if the last two digits are 00-49, assume current century. 50-99 assumes previous century.
+-- The 24-hour format (HH24) shows midnight as 00, and the 12-hour format(HH12/HH) shows midnight as 12. 
+select TO_CHAR(SYSDATE,'FMDaY, "the" Ddth "of" Month, RRRR')  from dual;
+-- Shows how RR interprests date. once the DFATE object is created, its always put put the same way. RR and YY differ in interpretting a string represantatin as a DATE type.
+select TO_CHAR(TO_DATE('99','YY'), 'YYYY'), TO_CHAR(TO_DATE('99','RR'), 'YYYY'),TO_CHAR(TO_DATE('99','YY'), 'RRRR') from dual;
