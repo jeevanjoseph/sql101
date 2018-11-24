@@ -281,5 +281,67 @@ Select CASE NULL when NULL THEN 'CASE : NULL == NULL' ELSE 'CASE : NULL !=NULL' 
 
 -- Searched CASE, where a proper IS NULL check is employed, this returs NULL IS NULL as expected
 Select CASE WHEN NULL IS NULL THEN 'CASE : NULL IS NULL' ELSE 'CASE : NULL IS NOT NULL' END from Dual;
--- DECODE, where NULL values arfe compared -- IS NULL not used -- return true. This is out of the ordinary. 
+-- DECODE, where NULL values are compared -- IS NULL not used -- return true. This is out of the ordinary. 
 Select DECODE(NULL,NULL,'DECODE: NULL==NULL','DECODE: NULL!=NULL') from Dual;
+
+-- Samples. Takes the EMP table, look at the job_id and deduce the job based on the first two letters of the code.
+SELECT EMP.*, 
+CASE SUBSTR(EMP.JOB_ID,1,2)
+WHEN 'AD' THEN 'Admin'
+WHEN 'IT' THEN 'Tech'
+WHEN 'FI' THEN 'Finance'
+ELSE 'Other'
+END JOB
+from HR.EMPLOYEES EMP;
+-- Same thing in DECODE form.
+-- Both CASE and DECODE does not need to have a final "default". if there is no default and none of the exprs match, then a NULL is returned.
+
+SELECT EMP.*, 
+DECODE( SUBSTR(EMP.JOB_ID,1,2), 
+        'AD', 'Admin',
+        'IT', 'Tech',
+        'FI', 'Finance',
+        'Other') JOB
+from HR.EMPLOYEES EMP;
+
+
+--  COUNT
+ 
+-- Syntax: COUNT(e1)
+-- Parameters: e1 is an expression. e1 can be any data type.
+
+-- The aggregate function COUNT determines the number of  occurrences of non-NULL values. 
+-- It considers the value of an expression and determines whether that value is NOT NULL for each row it encounters.
+-- COUNT will never return NULL. If it encounters no values at all, it will at least return a value of 0 (zero). 
+-- COUNT counts occurrences of data, ignoring NULL values. But when combined with the asterisk, as in SELECT COUNT(*) FROM VENDORS,
+-- it counts occurrences of rows—and will include rows with all NULL values in the results. 
+-- 
+-- The DISTINCT and ALL operators can be used with aggregate functions. DISTINCT returns only unique values. 
+-- ALL is the opposite of DISTINCT and is the default value. If you omit DISTINCT, the ALL is assumed. 
+-- DISTINCT and ALL cannot be used with the asterisk
+-- 
+select count(*), count(COMMISSION_PCT), count(DISTINCT COMMISSION_PCT) from HR.EMPLOYEES;
+
+
+--  SUM
+ 
+-- Syntax: SUM(e1)
+-- Parameters: e1 is an expression whose data type is numeric.
+
+-- The SUM function adds numeric values in a given column. It takes only numeric data as input. SUM adds all the values in all the rows and returns a single answer.
+Select to_char(sum(salary),'L999,999,999.99') from hr.employees;
+
+
+--  MIN, MAX
+ 
+-- Syntax: MIN(e1); MAX(e1)
+-- Parameters: e1 is an expression with a data type of character, date, or number.
+-- they use the same basic logic that ORDER BY uses for the different data types, specifically:
+
+--     Numeric: Low numbers are MIN; high numbers are MAX.
+--     Date: Earlier dates are MIN; later dates are MAX. Earlier dates are less than later dates.
+--     Character: A is less than Z; Z is less than a. The string value 2 is greater than the string value 100. The character 1 is less than the characters 10.
+
+-- NULL values are ignored, unless all values are NULL, in which case MIN or MAX will return NULL.
+
+Select min(salary), min(email), min(hire_date),  max(salary), max(email), max(hire_date) from hr.employees;
