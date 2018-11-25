@@ -345,3 +345,70 @@ Select to_char(sum(salary),'L999,999,999.99') from hr.employees;
 -- NULL values are ignored, unless all values are NULL, in which case MIN or MAX will return NULL.
 
 Select min(salary), min(email), min(hire_date),  max(salary), max(email), max(hire_date) from hr.employees;
+
+--  AVG
+ 
+-- Syntax: AVG(e1)
+-- Parameters: e1 is an expression with a numeric data type.
+
+-- The AVG function computes the average value for a set of rows. AVG works only with numeric data. It ignores NULL values. 
+-- a single aggregate function can be used within as many nested scalar functions as you want. The aggregate function need not be the innermost function
+
+--  MEDIAN
+ 
+-- Syntax: MEDIAN(e1)
+-- Parameters: e1 is an expression with a numeric or date data type.
+
+-- MEDIAN can operate on numeric or date data types. It ignores NULL values. 
+Select median(hire_date),  to_char(avg(round(nvl(salary,0),2)),'L999,999.99'), max(email), max(hire_date) from hr.employees;
+
+
+-- RANK: Analytic
+-- Syntax: RANK() OVER (PARTITION BY p1 ORDER BY ob1)
+-- Parameters: p1 is a partition. ob1 is an expression.
+
+-- The use of PARTITION BY is optional. All other elements are required.
+
+-- The RANK function calculates the rank of a value within a group of values. 
+-- Ranks may not be consecutive numbers since SQL counts tied rows individually, 
+-- so if three rows are tied for first, they will each be ranked 1, 1, and 1, and the next row will be ranked 4.
+
+
+-- SELECT SHIP_CABIN_ID, ROOM_STYLE, SQ_FT 
+--      , RANK() OVER (PARTITION BY ROOM_STYLE ORDER BY SQ_FT) SQ_FT_RK 
+-- FROM     SHIP_CABINS 
+-- WHERE    SHIP_CABIN_ID <= 7 
+-- ORDER BY SQ_FT; 
+ 
+-- SHIP_ 
+-- CABIN_ 
+--     ID ROOM_STYLE  SQ_FT   SQ_FT_RK 
+-- ------ ---------- ------ ---------- 
+--      2 Stateroom     160          1 
+--      4 Stateroom     205          2 
+--      7 Stateroom     211          3 
+--      3 Suite         533          1 
+--      1 Suite         533          1 
+--      5 Suite         586          3 
+--      6 Suite        1524          4 
+
+
+Select first_name, last_name, hire_date, salary,job_id, rank() over (partition by job_id order by salary,hire_date ) rnk from hr.employees order by job_id, salary, hire_date  ;
+
+
+-- GROUP BY identifies subsets of rows within the larger set of rows being considered by the SELECT statement.
+--     The GROUP BY can specify any number of valid expressions, including columns of the table.
+--     Generally the GROUP BY is used to specify columns in the table that will contain common data in order to group rows together for performing some sort of aggregate function on the set of rows.
+--     The following are the only items allowed in the select list of a SELECT that includes a GROUP BY clause:
+--         Expressions that are specified in the GROUP BY.
+--         Aggregate functions applied to those expressions.
+--     Expressions that are specified in the GROUP BY do not have to be included in the SELECT statement’s select list.
+
+-- The HAVING clause can exclude specific groups of rows defined in the GROUP BY clause. 
+-- You could think of it as the WHERE clause for groups of rows specified by the GROUP BY clause.
+-- The HAVING clause is unique to the SELECT statement; it does not exist in other SQL statements.
+-- The HAVING clause does not define the groups of rows themselves; those groups must already be defined by the GROUP BY clause. 
+-- HAVING defines the criteria upon which each of the GROUP BY groups will be either included or excluded.
+-- The HAVING clause can be invoked only in a SELECT statement where the GROUP BY clause is present.
+-- GROUP BY and HAVING may occur in any order.
+-- It can only compare expressions that reference groups as defined in the GROUP BY clause and aggregate functions.
