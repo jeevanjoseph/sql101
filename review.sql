@@ -414,6 +414,49 @@ Select first_name, last_name, hire_date, salary,job_id, rank() over (partition b
 
 
 
+-- this query gets employees, their department names and manager names 
+-- it ranks the employees by salary within thier department.
+-- displays the result in the order or salary earned.
+-- the left outer join for getting manager names is needed to capture the CEO(no manager)
+
+select emp.first_name||' '||emp.last_name as Employee, 
+        emp.salary, 
+        dept.department_name,
+        mgr.first_name||' '||mgr.last_name as Manager, 
+        rank() over (partition by emp.department_id order by emp.salary desc) 
+    from hr.employees emp  
+        join hr.departments dept 
+            on emp.department_id = dept.department_id 
+        left outer join hr.employees mgr 
+            on emp.manager_id = mgr.employee_id 
+    order by emp.salary desc
+    
+-- this query finds the total salary budget for each department with their managers.
+-- to get the salary budget, we need the employee table grouped at the department_id level
+-- emp.dept_id:dept.dept_name is 1:1, so group by department name to select that in the query
+-- its joined again with the emp table to find managers for each dept. this is also a 1:1 
+-- since each dept has only one manager and that manager has only one name, we can group by the name.
+select  dept.department_name, sum(emp.salary) total, dept.manager_id ,mgr.first_name
+from hr.employees emp 
+    join hr.departments dept
+        on dept.department_id = emp.department_id 
+    join hr.employees mgr
+        on mgr.employee_id = dept.manager_id
+-- this where clause would consider only employees with less than 10k in salary.
+-- all departments are considered, and the results with the filtered data is found
+--where emp.salary < 10000
+group by dept.department_name, dept.manager_id, mgr.first_name
+-- the having clause filters the groups that are already identified.
+-- it does not work at the individual row level but rather at the group level
+-- only aggregates or columns inthe group by can be used here.
+--having sum(emp.salary)>10000
+
+--when both the where clause and the having is used, the where caulse filters the 
+-- rows and the group by processes the filtered rows. The having clause sees the 
+-- filtered data from the where clause/
+order by total desc
+
+
 -- Examples for testing queries as well as data dictionary. 
 
 drop table emp cascade constraints;
