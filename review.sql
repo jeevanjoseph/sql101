@@ -1,4 +1,3 @@
---  08bba8ab9e5b3d782a80fd59c65cd500117c2cfd
 -- LPAD and RPAD
 -- Syntax: LPAD(s1, n, s2)
 --               RPAD(s1, n, s2).
