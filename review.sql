@@ -412,3 +412,58 @@ Select first_name, last_name, hire_date, salary,job_id, rank() over (partition b
 -- The HAVING clause can be invoked only in a SELECT statement where the GROUP BY clause is present.
 -- GROUP BY and HAVING may occur in any order.
 -- It can only compare expressions that reference groups as defined in the GROUP BY clause and aggregate functions.
+
+
+
+-- Examples for testing queries as well as data dictionary. 
+
+drop table emp cascade constraints;
+drop table dept cascade constraints;
+drop sequence emp_seq;
+drop sequence dept_seq;
+drop view emp_details;
+drop view emp_detail2;
+
+
+create table emp(id number(10),
+                name varchar2(30),
+                age number(3),
+                dept_id number(10),
+                CONSTRAINT emp_pk primary key (id)
+                ) enable row movement;
+                
+create table dept (id number(10) primary key,
+                    name varchar2(30),
+                    manager_id number(10),
+                    constraint dept_mgr_fk foreign key(manager_id) references emp(id) 
+                    );
+                    
+alter table emp add constraint dept_fk foreign key (dept_id) references dept(id);
+
+create sequence emp_seq start with 1000 increment by 5;
+create sequence dept_seq start with 10 increment by 10;
+
+
+insert into emp(id, name, age) values (emp_seq.nextval, 'Joe', 30);
+insert into dept values (dept_seq.nextval, 'keyboards', 1000);
+update emp set dept_id = (select max(id) from dept) where id = (select max(id) from emp);
+
+select * from emp join dept on emp.dept_id = dept.id;
+
+
+create view emp_details as (select emp.id, emp.name, age, dept_id, dept.name as dept_name, (select emp.name from emp join dept on dept.manager_id = emp.id ) department_manager from emp join dept on emp.dept_id = dept.id);
+
+create view emp_detail2 as (select emp.id, emp.name, emp.age, emp.dept_id, dept.name as dept_name, mgr.name as department_manager 
+from emp 
+    join dept
+        on emp.dept_id = dept.id 
+    join emp  mgr on dept.manager_id = mgr.id);
+
+
+select * from emp_details;
+
+
+-- query the data dictionary 
+select * from user_catalog;
+select * from user_objects;
+select * from user_tables;
