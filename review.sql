@@ -459,42 +459,71 @@ order by total desc
 
 -- Examples for testing queries as well as data dictionary. 
 
+
+-- drop everything to make this idempotent
 drop table emp cascade constraints;
 drop table dept cascade constraints;
+drop table emp_managers ;
+drop table emp_department;
+drop table emp_department_mgr;
 drop sequence emp_seq;
 drop sequence dept_seq;
 drop view emp_details;
 drop view emp_detail2;
 
-
+-- table creation. 
+-- named primary key using the constraint keyword.
+-- row movement enabled, so that this table can be used in a flashback table
 create table emp(id number(10),
                 name varchar2(30),
                 age number(3),
                 dept_id number(10),
                 CONSTRAINT emp_pk primary key (id)
                 ) enable row movement;
-                
+
+-- un-named primary key, using inline syntax.
+-- named foreign key that references the manager_id column of the employee table.
 create table dept (id number(10) primary key,
                     name varchar2(30),
                     manager_id number(10),
                     constraint dept_mgr_fk foreign key(manager_id) references emp(id) 
                     );
-                    
+
+-- adding an FK constraint on the emp table to reference the department id.
+-- this could not be done before becuase the dept table did not exist at that time
 alter table emp add constraint dept_fk foreign key (dept_id) references dept(id);
 
+-- sequence creations
 create sequence emp_seq start with 1000 increment by 5;
 create sequence dept_seq start with 10 increment by 10;
 
 
+-- some data being inserted, the sequence is used for key generation
+-- The FK cannot be populated initally since the dept row does not yet exist.
 insert into emp(id, name, age) values (emp_seq.nextval, 'Joe', 30);
 insert into dept values (dept_seq.nextval, 'keyboards', 1000);
+insert into dept values (dept_seq.nextval, 'mice', 1000);
+
+-- adding the reationship
 update emp set dept_id = (select max(id) from dept) where id = (select max(id) from emp);
 
+-- simple join
 select * from emp join dept on emp.dept_id = dept.id;
 
+-- Simple view - Insertable
+create view leadership_team as (select * from emp where dept_id = 10);
+select * from leadership_team;
+-- inserts a row into the underlying table, but the view sql will prevent this 
+-- row from being selected in the view.
+-- the where condition on the view sql does not affect the insertability.
+insert into leadership_team values (emp_seq.nextval, 'alex', 25, 20);
 
+
+-- create a view . uses a subquery to get the department manager.
+-- can be done with a 3 way join as well
 create view emp_details as (select emp.id, emp.name, age, dept_id, dept.name as dept_name, (select emp.name from emp join dept on dept.manager_id = emp.id ) department_manager from emp join dept on emp.dept_id = dept.id);
 
+-- using a 3 way join to get the employee details as well as the departmental manager.
 create view emp_detail2 as (select emp.id, emp.name, emp.age, emp.dept_id, dept.name as dept_name, mgr.name as department_manager 
 from emp 
     join dept
@@ -505,7 +534,75 @@ from emp
 select * from emp_details;
 
 
+-- METADATA Tables and Views.
+
+-- all DDL (not DML) statements affect the data dictionary
+-- USER_ tables contain info on the objects that are owned by the current user.
+-- ALL_  tables conatain info on everything that the current user has access to (but not necesarily own)
+-- DBA_  tables have info on all objects in the DB, but requires the user to have permisssions to query the tables.
+
 -- query the data dictionary 
+select * from dictionary where table_name like '%EMP%';
 select * from user_catalog;
 select * from user_objects;
 select * from user_tables;
+
+-- checking status of views and recompiling them.
+-- You cannot select all invalid views and recompile them in one command as
+-- the alter is a DDL and the select is a DML. PL/SQL can do this 
+select * from user_objects where object_type='VIEW'
+alter view EMP_DETAILS compile
+
+-- check privileges
+select * from user_sys_privs;
+select * from DBA_SYS_PRIVS;
+
+-- See constraint details, filtered by the table name.
+-- note that only tables can have constraints.
+SELECT CONSTRAINT_NAME, CONSTRAINT_TYPE, R_CONSTRAINT_NAME, STATUS
+FROM   USER_CONSTRAINTS
+WHERE  TABLE_NAME = 'EMP'
+
+
+-- see table comments.
+-- users can add comments although the dictionary tables are owned by the SYS user
+select * from user_tab_comments;
+comment on table emp is 'simple table for testing';
+select * from user_tab_comments;
+
+-- Note that the dictonary stores everything in upper case. except for quoted table names.
+-- note that create table uses double qoutes to specify the table name, but the 
+-- select from the user_tab_comments uses as single quoted string.
+create table "Really Bad Name" (key number(5) primary key,value varchar2(2000));
+select * from user_tab_comments where table_name = 'Really Bad Name'
+
+
+select * from user_col_comments where table_name = 'EMP'
+comment on column emp.id is 'The Employee ID. the primary key for the emp table'
+select * from user_col_comments where table_name = 'EMP'
+
+-- Multi Table Inserts
+
+
+-- setting up some dummy tables
+create table emp_managers  (emp_name varchar2(30), manager_name varchar2(30));
+create table emp_department (emp_name varchar2(30), department_name varchar2(30));
+create table emp_department_mgr (emp_name varchar2(30), department_name varchar2(30),manager varchar2(30));
+
+-- the first table omits the column names, so all columns are assumed in the table order. 
+-- will fail if the values clause does not have data for all columns
+--  the second insert specifies the column list as well as the values list
+-- the final isert omits both the column list as well as the values list, 
+-- but the select statement result can directly be  inserted in to this table
+INSERT ALL
+    into  emp_managers values (ename, manager)
+    into  emp_department (emp_name, department_name) values (ename, dname)
+    into emp_department_mgr
+    Select emp.name ename, dept.name dname, (select emp2.name from emp emp2 join dept dept2 on emp2.id= dept2.manager_id where dept.id = dept2.id) manager
+    from emp 
+        join dept
+        on emp.dept_id = dept.id
+        
+select * from emp_managers;
+select * from emp_department;
+select * from emp_department_mgr;
