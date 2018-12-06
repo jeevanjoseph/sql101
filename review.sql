@@ -11,11 +11,11 @@
     -- Users & Roles
     -- Public Synonymns
     -- Schema Objects
-        -- NS
+        -- NS for indexed
             -- Indexes
-        -- NS
+        -- NS for contraints
             -- Constraints
-        -- NS
+        -- NS for DB objects
             -- Tables 
             -- views
             -- synonymns
@@ -43,7 +43,23 @@
     -- BLOB - Binary upto 4GB. No unique indexes possible
     -- CLOB - Char LOB upto 4GB. No unique indexes possible.
     -- NCLOB - CLOB in unicode.
-
+-- TRUNCATE TABLE
+    -- removes all rows and indexes, does not fire triggers
+    -- Leaves all child tables intact, 
+        -- unless the child tables' FK constraint specifies ON DELETE CASCADE
+        -- In which case, a normal TRUNCATE would fail, a TRUNCATE TABLE <name> CASCADE is required.
+    -- Does not use UNDO space, does not work with FLASHBACK and ROLLBACK 
+-- Transaction control
+    -- explit commit is => COMMIT and COMMIT WORK are the same, they commit the changes in the current transaction
+    -- Implicit commit occurs when a DDL is fired, even if the DDL fails. commits are done before and after a DDL
+        -- A normal exit from the session performs a commit as well
+        -- an abnormal termination of a session will issue a rollback
+    -- SAVEPOINT. Syntax is SAVEPOINT <name>. Name follws DB object naming conventions.
+        -- ROLLBACK TO <name> or ROLLBACK WORK TO <name> are the same. If Rollback names an invalid savepoint, 
+            -- its a warning, and changes are still pending in the transaction. 
+        -- Duplicate name for the save point will overwrite the savepoint
+        -- Once a commit is done, savepoints are erased and using them is an error.
+        -- 
 
 
 -- LPAD and RPAD
