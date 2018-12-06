@@ -16,7 +16,7 @@
         -- NS
             -- Constraints
         -- NS
-            -- Tables
+            -- Tables 
             -- views
             -- synonymns
             -- sequences
