@@ -1,3 +1,51 @@
+-- schema objects are owned by a user account.
+-- a synonymn is a schema object, however a public schema is a non-schema object.
+
+-- db object naming
+--      -- start with a letter,[A-Za-z0-9_#$]. 1<= length<=30
+        -- name is not case sensitive, but stored in UPPER in data dictionary tables.
+        -- if name is quoted, then all references should be quoted as well.
+        -- reserved words can be used in quoted names, they can start with any char or include spaces.
+-- Name Spaces
+    -- names have to be unique in their name spaces
+    -- Users & Roles
+    -- Public Synonymns
+    -- Schema Objects
+        -- NS
+            -- Indexes
+        -- NS
+            -- Constraints
+        -- NS
+            -- Tables
+            -- views
+            -- synonymns
+            -- sequences
+            -- user defined types
+-- CREATE TABLE
+    -- need to ensure the brackets for column definitions, the commas and a final semicolon
+    -- Constraints can be added in-line or at the end. EXCEPT for NOT NULL. thats possible only with INLINE
+    -- Inline constraints can be named using the CONSTRAINT keyword. 
+
+-- DATA TYPES
+    -- CHAR(n). Fixed, shorter entries are RPADed with spaces. n is optional and assumed to be one. n<=2000
+    -- VARCHAR2(n). 1<= n <= 4000. n is mandatory
+    -- NUMBER(p,s). p,s optional defaults to the largerst values. 
+        -- p is the total number of digits, s is the number of digits to the right of the decimal
+        -- NUMBER(4,1) -> 101.55 => 101.6 == total 4 digits, 1 to the right of the decimal and values are rounded.
+    -- DATE - stores time up to seconds as well
+        -- RR - 00-49 21at century, 50-99 20th century
+
+    -- TIMEASTAMP(n=6) - 0<=n<=9 . Stores franctional seconds as well
+    -- TIMESTAMP WITH TIMEZONE (n=6) - 0<=n<=9. Stores a timezone offset or timezone region name 
+    -- TIMESTAMP WITH LOCAL TIMEZONE (n=6) - 0<=n<=9. Timezone offset or region code is not actually stored,
+    --                   rather the DB converts to the session tine and retutrns to the user.
+
+    -- BLOB - Binary upto 4GB. No unique indexes possible
+    -- CLOB - Char LOB upto 4GB. No unique indexes possible.
+    -- NCLOB - CLOB in unicode.
+
+
+
 -- LPAD and RPAD
 -- Syntax: LPAD(s1, n, s2)
 --               RPAD(s1, n, s2).
