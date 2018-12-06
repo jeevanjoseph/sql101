@@ -112,12 +112,12 @@ select RTRIM('AAABBAAABDBBCC','ACB') from dual;
 -- Process: Same as LTRIM and RTRIM, with a slightly different syntax.
 -- Output: Character string.
 -- If multiple chars are specified in the trim_char, then an error is thrown
-select trim(LEADING '0' FROM '000ABC123000') from dual;
-select trim(TRAILING '0' FROM '000ABC123000') from dual;
-select trim('0' FROM '000ABC123000') from dual;
-select trim(LEADING '0' FROM (SELECT '000111' FROM DUAL)) from dual;
+select TRIM(LEADING '0' FROM '000ABC123000') from dual;
+select TRIM(TRAILING '0' FROM '000ABC123000') from dual;
+select TRIM('0' FROM '000ABC123000') from dual;
+select TRIM(LEADING '0' FROM (SELECT '000111' FROM DUAL)) from dual;
 
-select trim(LEADING '00' FROM '000ABC123000') from dual;
+select TRIM(LEADING '00' FROM '000ABC123000') from dual;
 
 
 -- INSTR
@@ -367,7 +367,7 @@ from HR.EMPLOYEES EMP;
 -- ALL is the opposite of DISTINCT and is the default value. If you omit DISTINCT, the ALL is assumed. 
 -- DISTINCT and ALL cannot be used with the asterisk
 -- 
-select count(*), count(COMMISSION_PCT), count(DISTINCT COMMISSION_PCT) from HR.EMPLOYEES;
+select COUNT(*), COUNT(COMMISSION_PCT), COUNT(DISTINCT COMMISSION_PCT) from HR.EMPLOYEES;
 
 
 --  SUM
@@ -376,7 +376,7 @@ select count(*), count(COMMISSION_PCT), count(DISTINCT COMMISSION_PCT) from HR.E
 -- Parameters: e1 is an expression whose data type is numeric.
 
 -- The SUM function adds numeric values in a given column. It takes only numeric data as input. SUM adds all the values in all the rows and returns a single answer.
-Select to_char(sum(salary),'L999,999,999.99') from hr.employees;
+Select to_char(SUM(salary),'L999,999,999.99') from hr.employees;
 
 
 --  MIN, MAX
@@ -391,7 +391,7 @@ Select to_char(sum(salary),'L999,999,999.99') from hr.employees;
 
 -- NULL values are ignored, unless all values are NULL, in which case MIN or MAX will return NULL.
 
-Select min(salary), min(email), min(hire_date),  max(salary), max(email), max(hire_date) from hr.employees;
+Select MIN(salary), MIN(email), MIN(hire_date),  MAX(salary), MAX(email), MAX(hire_date) from hr.employees;
 
 --  AVG
  
@@ -407,7 +407,7 @@ Select min(salary), min(email), min(hire_date),  max(salary), max(email), max(hi
 -- Parameters: e1 is an expression with a numeric or date data type.
 
 -- MEDIAN can operate on numeric or date data types. It ignores NULL values. 
-Select median(hire_date),  to_char(avg(round(nvl(salary,0),2)),'L999,999.99'), max(email), max(hire_date) from hr.employees;
+Select median(hire_date),  to_char(AVG(ROUND(nvl(salary,0),2)),'L999,999.99'), MAX(email), MAX(hire_date) from hr.employees;
 
 
 -- RANK: Analytic
@@ -440,7 +440,7 @@ Select median(hire_date),  to_char(avg(round(nvl(salary,0),2)),'L999,999.99'), m
 --      6 Suite        1524          4 
 
 
-Select first_name, last_name, hire_date, salary,job_id, rank() over (partition by job_id order by salary,hire_date ) rnk from hr.employees order by job_id, salary, hire_date  ;
+Select first_name, last_name, hire_date, salary,job_id, RANK() over (partition by job_id order by salary,hire_date ) rnk from hr.employees order by job_id, salary, hire_date  ;
 
 
 -- GROUP BY identifies subsets of rows within the larger set of rows being considered by the SELECT statement.
