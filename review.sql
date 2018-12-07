@@ -97,7 +97,8 @@ select concat('Hello',' there') || concat('! How''s it going','?') from dual;
 -- Syntax: LTRIM(s1, s2)
 --              RTRIM(s1, s2)
 -- Parameters: s1, s2—both are character strings. s1 is required, and s2 is optional—if omitted, it defaults to a single blank space.
--- Process: Removes occurrences of the s2 characters from the s1 string, from either the left side of s1 (LTRIM) or the right side of s1 (RTRIM) exclusively.
+-- Process: Removes occurrences of the s2 characters from the s1 string, from either the left side of s1 (LTRIM) 
+    -- or the right side of s1 (RTRIM) exclusively.
 -- Output: Character string.
 -- Notes: Ideal for stripping out unnecessary blanks, periods, ellipses, and so on.
 -- basically ensures that the input string does not begin with or end with any of the characters in the S2.
@@ -138,7 +139,10 @@ select TRIM(LEADING '00' FROM '000ABC123000') from dual;
 
 -- INSTR
 -- Syntax: INSTR(s1, s2, pos, n)
--- Parameters: s1 is the source string (required); s2 is the substring (required); pos is the starting position in s1 to start looking for occurrences of s2 (optional, default is 1); n is the occurrence of s2 to locate (optional, default is 1). If pos is negative, the search in s1 for occurrences of s2 starts at the end of the string and moves backward.
+-- Parameters: s1 is the source string (required); s2 is the substring (required); 
+    -- pos is the starting position in s1 to start looking for occurrences of s2 (optional, default is 1); 
+    -- n is the occurrence of s2 to locate (optional, default is 1). 
+    -- If pos is negative, the search in s1 for occurrences of s2 starts at the end of the string and moves backward.
 -- Process: Locates a string within another string (thus the name of the function: IN STRing).
 -- Output: Numeric.
 -- Indexes (position) are 1 based. looking for a string from the 0th position will yield nothing.
@@ -176,7 +180,9 @@ select INSTR('1234AA7A9AA','AA',-1,2) FROM DUAL;
 -- SUBSTR
 -- Syntax: SUBSTR(s, pos, len)
 -- Parameters: s = a character string, required; pos = a number, required; len = a number, optional.
--- Process: Extracts a substring from s, starting at the pos character of s and continuing for len number of characters. If len is omitted, then the substring starts as pos and runs through the end of s. If pos is negative, then the function starts at the end of the string and moves backward.
+-- Process: Extracts a substring from s, starting at the pos character of s and continuing for len number of characters.
+    -- If len is omitted, then the substring starts as pos and runs through the end of s. 
+    -- If pos is negative, then the function starts at the end of the string and moves backward.
 -- Output: Character string.
 
 -- take from 5th char to the end. No length
@@ -203,10 +209,14 @@ select 'Hello' from Dual where substr('1234567890',5,0) IS null and substr('1234
 -- ROUND—Number
 -- Syntax: ROUND (n, i)
 -- Parameters: n is required, is any number, and can include decimal points. i is an integer and is optional—if omitted, it will default to 0.
--- Process: n is rounded depending on the value of i. If i is zero, n is rounded off to the nearest whole number, in other words, zero decimal points. If i is a positive number, n is rounded to i places to the right of the decimal point. If i is a negative number, n is rounded to i places to the left of the decimal point. The number 5 is rounded away from zero.
+-- Process: n is rounded depending on the value of i. 
+    -- If i is zero, n is rounded off to the nearest whole number, in other words, zero decimal points. 
+    -- If i is a positive number, n is rounded to i places to the right of the decimal point. 
+    -- If i is a negative number, n is rounded to i places to the left of the decimal point. The number 5 is rounded away from zero.
 -- Output: If i is omitted, ROUND returns a value in the same numeric data type as n. If i is specified, ROUND returns a data type of NUMBER.
 
--- Rounding works with the number of decimals desired. if desired decimals are more than available, nothing is done. Negative decimal points will round on the other side of the decimal.
+-- Rounding works with the number of decimals desired. if desired decimals are more than available, nothing is done. 
+-- Negative decimal points will round on the other side of the decimal.
 select CEIL(5.5), FLOOR(5.5), ROUND(5.5),ROUND(5.49), ROUND(5.49,1),ROUND(5.49,3), ROUND(5.49e3,3),ROUND(555.49,-1), ROUND(555.49,-2)from Dual;
 -- Automatic type conversion works when numbers are quoted, including scientific 'e to the power' notation 
 select CEIL('5.5'), FLOOR('5.5'), ROUND('5.5'),ROUND('5.49'), ROUND('5.49',1),ROUND('5.49',3), ROUND('5.49e2',2) from Dual;
@@ -238,13 +248,17 @@ select TRUNC(5.5),TRUNC(5.49), TRUNC(5.49,1),TRUNC(5.49,3), TRUNC(5.49e3,3),TRUN
 SELECT SYSDATE TODAY, ROUND(SYSDATE,'MM') ROUNDED_MONTH, ROUND(SYSDATE,'RR') ROUNDED_YEAR FROM   DUAL; 
 
 -- rounding without a format, rounds to the nearest day, 12:00 noon rounds to the next day and 11:59:59 rounds to the 00:00 of the current day  
-select to_char(round(to_date('16-DEC-2018 11:30:00','DD-MON-YYYY HH24:MI:SS')), 'DD-MON-YYYY HH24:MI:SS') "11:30:00", to_char(round(to_date('16-DEC-2018 12:00:00','DD-MON-YYYY HH24:MI:SS')), 'DD-MON-YYYY HH24:MI:SS') "12:00:00" from Dual ;
+select to_char(round(to_date('16-DEC-2018 11:30:00','DD-MON-YYYY HH24:MI:SS')), 'DD-MON-YYYY HH24:MI:SS') "11:30:00", 
+        to_char(round(to_date('16-DEC-2018 12:00:00','DD-MON-YYYY HH24:MI:SS')), 'DD-MON-YYYY HH24:MI:SS') "12:00:00" from Dual ;
 -- HH, rounds to the nearest hour, 30th minute rounds up to the next hour
-select to_char(round(to_date('16-DEC-2018 11:30:00','DD-MON-YYYY HH24:MI:SS'),'HH'), 'DD-MON-YYYY HH24:MI:SS') "11:30:00", to_char(round(to_date('16-DEC-2018 11:29:59','DD-MON-YYYY HH24:MI:SS'),'HH'), 'DD-MON-YYYY HH24:MI:SS') " 11:29:59" from Dual ;
+select to_char(round(to_date('16-DEC-2018 11:30:00','DD-MON-YYYY HH24:MI:SS'),'HH'), 'DD-MON-YYYY HH24:MI:SS') "11:30:00", 
+        to_char(round(to_date('16-DEC-2018 11:29:59','DD-MON-YYYY HH24:MI:SS'),'HH'), 'DD-MON-YYYY HH24:MI:SS') " 11:29:59" from Dual ;
 -- DD rounds a date to the nearest Day. 12 noon rounds up to the next day.
-select to_char(round(to_date('16-DEC-2018 11:59:59','DD-MON-YYYY HH24:MI:SS'),'DD'), 'DD-MON-YYYY HH24:MI:SS') "11:59:59", to_char(round(to_date('16-DEC-2018 12:00:00','DD-MON-YYYY HH24:MI:SS'),'DD'), 'DD-MON-YYYY HH24:MI:SS') "12:00:00" from Dual ;
+select to_char(round(to_date('16-DEC-2018 11:59:59','DD-MON-YYYY HH24:MI:SS'),'DD'), 'DD-MON-YYYY HH24:MI:SS') "11:59:59", 
+        to_char(round(to_date('16-DEC-2018 12:00:00','DD-MON-YYYY HH24:MI:SS'),'DD'), 'DD-MON-YYYY HH24:MI:SS') "12:00:00" from Dual ;
 -- MM Round a date to the 'nearest' month. 15th is rounded down, and 16th is rounded up
-select to_char(round(to_date('16-DEC-2018 11:29:00','DD-MON-YYYY HH24:MI:SS'),'MM'), 'DD-MON-YYYY HH24:MI:SS') "16th", to_char(round(to_date('15-DEC-2018 11:29:00','DD-MON-YYYY HH24:MI:SS'),'MM'), 'DD-MON-YYYY HH24:MI:SS') "15th" from Dual ;
+select to_char(round(to_date('16-DEC-2018 11:29:00','DD-MON-YYYY HH24:MI:SS'),'MM'), 'DD-MON-YYYY HH24:MI:SS') "16th", 
+        to_char(round(to_date('15-DEC-2018 11:29:00','DD-MON-YYYY HH24:MI:SS'),'MM'), 'DD-MON-YYYY HH24:MI:SS') "15th" from Dual ;
 
 
 -- TRUNC—Date
@@ -253,13 +267,17 @@ select to_char(round(to_date('16-DEC-2018 11:29:00','DD-MON-YYYY HH24:MI:SS'),'M
 -- Process: Performs the same task as ROUND for dates, except TRUNC always rounds down.
 
 -- trunc without a format,  rounds to the 00:00 of the current day  
-select to_char(trunc(to_date('16-DEC-2018 11:30:00','DD-MON-YYYY HH24:MI:SS')), 'DD-MON-YYYY HH24:MI:SS') "11:30:00", to_char(trunc(to_date('16-DEC-2018 12:00:00','DD-MON-YYYY HH24:MI:SS')), 'DD-MON-YYYY HH24:MI:SS') " 12:00:00" from Dual ;
+select to_char(trunc(to_date('16-DEC-2018 11:30:00','DD-MON-YYYY HH24:MI:SS')), 'DD-MON-YYYY HH24:MI:SS') "11:30:00", 
+        to_char(trunc(to_date('16-DEC-2018 12:00:00','DD-MON-YYYY HH24:MI:SS')), 'DD-MON-YYYY HH24:MI:SS') " 12:00:00" from Dual ;
 -- HH, truncates to the start of the current hour
-select to_char(trunc(to_date('16-DEC-2018 11:30:00','DD-MON-YYYY HH24:MI:SS'),'HH'), 'DD-MON-YYYY HH24:MI:SS') "11:30:00", to_char(trunc(to_date('16-DEC-2018 11:29:59','DD-MON-YYYY HH24:MI:SS'),'HH'), 'DD-MON-YYYY HH24:MI:SS') " 11:29:59" from Dual ;
+select to_char(trunc(to_date('16-DEC-2018 11:30:00','DD-MON-YYYY HH24:MI:SS'),'HH'), 'DD-MON-YYYY HH24:MI:SS') "11:30:00", 
+        to_char(trunc(to_date('16-DEC-2018 11:29:59','DD-MON-YYYY HH24:MI:SS'),'HH'), 'DD-MON-YYYY HH24:MI:SS') " 11:29:59" from Dual ;
 -- DD truncates a date to the nearest Day. 12 noon rounds up to the next day.
-select to_char(trunc(to_date('16-DEC-2018 11:59:59','DD-MON-YYYY HH24:MI:SS'),'DD'), 'DD-MON-YYYY HH24:MI:SS') "11:59:59", to_char(trunc(to_date('16-DEC-2018 12:00:00','DD-MON-YYYY HH24:MI:SS'),'DD'), 'DD-MON-YYYY HH24:MI:SS') "12:00:00" from Dual ;
+select to_char(trunc(to_date('16-DEC-2018 11:59:59','DD-MON-YYYY HH24:MI:SS'),'DD'), 'DD-MON-YYYY HH24:MI:SS') "11:59:59", 
+        to_char(trunc(to_date('16-DEC-2018 12:00:00','DD-MON-YYYY HH24:MI:SS'),'DD'), 'DD-MON-YYYY HH24:MI:SS') "12:00:00" from Dual ;
 -- MM Round a date to the 'nearest' month. 15th is rounded down, and 16th is rounded up
-select to_char(trunc(to_date('16-DEC-2018 11:29:00','DD-MON-YYYY HH24:MI:SS'),'MM'), 'DD-MON-YYYY HH24:MI:SS') "16th", to_char(trunc(to_date('15-DEC-2018 11:29:00','DD-MON-YYYY HH24:MI:SS'),'MM'), 'DD-MON-YYYY HH24:MI:SS') "15th" from Dual ;
+select to_char(trunc(to_date('16-DEC-2018 11:29:00','DD-MON-YYYY HH24:MI:SS'),'MM'), 'DD-MON-YYYY HH24:MI:SS') "16th", 
+        to_char(trunc(to_date('15-DEC-2018 11:29:00','DD-MON-YYYY HH24:MI:SS'),'MM'), 'DD-MON-YYYY HH24:MI:SS') "15th" from Dual ;
 
 -- LAST_DAY
 -- Syntax: LAST_DAY(d)
@@ -293,14 +311,18 @@ SELECT TO_NUMBER('17.000,23',  '999G999D99', 'nls_numeric_characters='',.'' ')  
 
 -- Date types
 --      DATE - Stores the century, year, month, date, hour, minute, and second. 
---              When a string is coerced, RR or YY Format model interpret the century. Once stored, the output format does not affect the stored century info. 
+--              When a string is coerced, RR or YY Format model interpret the century. Once stored, 
+--              the output format does not affect the stored century info. 
 --              When a date is queried, it inlcudes the time stored. To compare dates without times, TRUNC can be used.
 -- TIMESTAMP - tracks franstional seconds in addition to date. default is to use 6 digits (percision) for storing the  franctional seconds.
 -- TIMESTAMP WITH TIME ZONE - includes the TZ offset or th TZ region name.
 --           - Two TZ with timezones are equal if they represent the same instant in UTC . 
-select 'they are the same', TO_TIMESTAMP_TZ ('1999-01-15 8:00:00 -8:00','YYYY-MM-DD HH24:MI:SS TZH:TZM'), TO_TIMESTAMP_TZ ('1999-01-15 11:00:00 -5:00','YYYY-MM-DD HH24:MI:SS TZH:TZM') 
+select 'they are the same', TO_TIMESTAMP_TZ ('1999-01-15 8:00:00 -8:00','YYYY-MM-DD HH24:MI:SS TZH:TZM'), 
+TO_TIMESTAMP_TZ ('1999-01-15 11:00:00 -5:00','YYYY-MM-DD HH24:MI:SS TZH:TZM') 
 from dual 
-where TO_TIMESTAMP_TZ ('1999-01-15 8:00:00 -8:00','YYYY-MM-DD HH24:MI:SS TZH:TZM') = TO_TIMESTAMP_TZ ('1999-01-15 11:00:00 -5:00','YYYY-MM-DD HH24:MI:SS TZH:TZM') ;
+where
+ TO_TIMESTAMP_TZ ('1999-01-15 8:00:00 -8:00','YYYY-MM-DD HH24:MI:SS TZH:TZM') = 
+    TO_TIMESTAMP_TZ ('1999-01-15 11:00:00 -5:00','YYYY-MM-DD HH24:MI:SS TZH:TZM') ;
 
 -- TIMESTAMP WITH LOCAL TIMEZONE - variarion on TS with TZ, but the date stored is in the DB tz, and the TZ offset is NOT stored. 
 --                               - when queried, the DB converts the date in to the user's local TZ as setup in the user session
@@ -320,7 +342,8 @@ where TO_TIMESTAMP_TZ ('1999-01-15 8:00:00 -8:00','YYYY-MM-DD HH24:MI:SS TZH:TZM
 --          RRRR -> if the last two digits are 00-49, assume current century. 50-99 assumes previous century.
 -- The 24-hour format (HH24) shows midnight as 00, and the 12-hour format(HH12/HH) shows midnight as 12. 
 select TO_CHAR(SYSDATE,'FMDaY, "the" Ddth "of" Month, RRRR')  from dual;
--- Shows how RR interprests date. once the DFATE object is created, its always put put the same way. RR and YY differ in interpretting a string represantatin as a DATE type.
+-- Shows how RR interprests date. once the DFATE object is created, its always put put the same way. 
+-- RR and YY differ in interpretting a string represantatin as a DATE type.
 select TO_CHAR(TO_DATE('99','YY'), 'YYYY'), TO_CHAR(TO_DATE('99','RR'), 'YYYY'),TO_CHAR(TO_DATE('99','YY'), 'RRRR') from dual;
 -- Sample converting a number to a date.
 SELECT TO_DATE(11221999,'MMDDYYYY') "Time" FROM   DUAL; 
@@ -391,7 +414,8 @@ select COUNT(*), COUNT(COMMISSION_PCT), COUNT(DISTINCT COMMISSION_PCT) from HR.E
 -- Syntax: SUM(e1)
 -- Parameters: e1 is an expression whose data type is numeric.
 
--- The SUM function adds numeric values in a given column. It takes only numeric data as input. SUM adds all the values in all the rows and returns a single answer.
+-- The SUM function adds numeric values in a given column. It takes only numeric data as input. 
+-- SUM adds all the values in all the rows and returns a single answer.
 Select to_char(SUM(salary),'L999,999,999.99') from hr.employees;
 
 
@@ -403,7 +427,8 @@ Select to_char(SUM(salary),'L999,999,999.99') from hr.employees;
 
 --     Numeric: Low numbers are MIN; high numbers are MAX.
 --     Date: Earlier dates are MIN; later dates are MAX. Earlier dates are less than later dates.
---     Character: A is less than Z; Z is less than a. The string value 2 is greater than the string value 100. The character 1 is less than the characters 10.
+--     Character: A is less than Z; Z is less than a. The string value 2 is greater than the string value 100. 
+--      The character 1 is less than the characters 10.
 
 -- NULL values are ignored, unless all values are NULL, in which case MIN or MAX will return NULL.
 
@@ -415,7 +440,8 @@ Select MIN(salary), MIN(email), MIN(hire_date),  MAX(salary), MAX(email), MAX(hi
 -- Parameters: e1 is an expression with a numeric data type.
 
 -- The AVG function computes the average value for a set of rows. AVG works only with numeric data. It ignores NULL values. 
--- a single aggregate function can be used within as many nested scalar functions as you want. The aggregate function need not be the innermost function
+-- a single aggregate function can be used within as many nested scalar functions as you want. 
+-- The aggregate function need not be the innermost function
 
 --  MEDIAN
  
@@ -456,12 +482,16 @@ Select median(hire_date),  to_char(AVG(ROUND(nvl(salary,0),2)),'L999,999.99'), M
 --      6 Suite        1524          4 
 
 
-Select first_name, last_name, hire_date, salary,job_id, RANK() over (partition by job_id order by salary,hire_date ) rnk from hr.employees order by job_id, salary, hire_date  ;
+Select first_name, last_name, hire_date, salary,job_id, 
+    RANK() over (partition by job_id order by salary,hire_date ) rnk 
+from hr.employees 
+order by job_id, salary, hire_date  ;
 
 
 -- GROUP BY identifies subsets of rows within the larger set of rows being considered by the SELECT statement.
 --     The GROUP BY can specify any number of valid expressions, including columns of the table.
---     Generally the GROUP BY is used to specify columns in the table that will contain common data in order to group rows together for performing some sort of aggregate function on the set of rows.
+--     Generally the GROUP BY is used to specify columns in the table that will contain common data 
+--      in order to group rows together for performing some sort of aggregate function on the set of rows.
 --     The following are the only items allowed in the select list of a SELECT that includes a GROUP BY clause:
 --         Expressions that are specified in the GROUP BY.
 --         Aggregate functions applied to those expressions.
@@ -585,7 +615,12 @@ insert into leadership_team values (emp_seq.nextval, 'alex', 25, 20);
 
 -- create a view . uses a subquery to get the department manager.
 -- can be done with a 3 way join as well
-create view emp_details as (select emp.id, emp.name, age, dept_id, dept.name as dept_name, (select emp.name from emp join dept on dept.manager_id = emp.id ) department_manager from emp join dept on emp.dept_id = dept.id);
+create view emp_details as (
+    select emp.id, emp.name, age, dept_id, dept.name as dept_name, 
+        (select emp.name from emp join dept on dept.manager_id = emp.id ) department_manager 
+    from emp 
+        join dept 
+        on emp.dept_id = dept.id);
 
 -- using a 3 way join to get the employee details as well as the departmental manager.
 create view emp_detail2 as (select emp.id, emp.name, emp.age, emp.dept_id, dept.name as dept_name, mgr.name as department_manager 
@@ -662,7 +697,8 @@ INSERT ALL
     into  emp_managers values (ename, manager)
     into  emp_department (emp_name, department_name) values (ename, dname)
     into emp_department_mgr
-    Select emp.name ename, dept.name dname, (select emp2.name from emp emp2 join dept dept2 on emp2.id= dept2.manager_id where dept.id = dept2.id) manager
+    Select emp.name ename, dept.name dname, 
+        (select emp2.name from emp emp2 join dept dept2 on emp2.id= dept2.manager_id where dept.id = dept2.id) manager
     from emp 
         join dept
         on emp.dept_id = dept.id
