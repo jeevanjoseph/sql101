@@ -127,7 +127,7 @@ select RTRIM('AAABBAAABDBBCC','ACB') from dual;
 --     trim_char is a single character to be trimmed—if omitted, assumed to be a blank.
 --     trim_source is the source string—if omitted, the TRIM function will return a NULL.
 
--- Process: Same as LTRIM and RTRIM, with a slightly different syntax. ONLY CHAR IS ALLOWED IN THE TRIMSET!!!
+-- Process: Same as LTRIM and RTRIM, with a slightly different syntax. ONLY CHAR IS ALLOWED IN THE TRIMSET!!!jgj
 -- Output: Character string.
 -- If multiple chars are specified in the trim_char, then an error is thrown
 select TRIM(LEADING '0' FROM '000ABC123000') from dual;
@@ -156,11 +156,14 @@ select INSTR('1234AA7A9','A',1,1) FROM DUAL;
 -- third occurence of A = 8
 select INSTR('1234AA7A9','A',1,3) FROM DUAL; 
 -- first occurence of A on or after the 7th char= 8
-select INSTR('1234AA7A9','A',6,1) FROM DUAL; 
--- first occurence of AA = 5
-select INSTR('1234AA7A9','AA',1,1) FROM DUAL; 
+select INSTR('1234AA7A9','A',7,1) FROM DUAL; 
+-- first occurence of AA = 4, this is the index of the first matched char in the search string
+select INSTR('123AAA7A9','AA',1,1) FROM DUAL; 
+-- second occurence of AA = 5, and the first occurence is 4
+select INSTR('123AAA7A9','AA',1,2) FROM DUAL; 
+
 -- second occurence of AA = 0 i.e. does not exist in the input string
-select INSTR('1234AA7A9','AA',1,2) FROM DUAL; 
+select INSTR('1234AA7A9','AA',1,7) FROM DUAL; 
 
 -- first occurence of A on or after the 0th position = 0
 select INSTR('1234AA7A9','A',0,1) FROM DUAL; 
