@@ -70,17 +70,17 @@
 -- Output: Character string.
 -- Example: Take a string literal 'Chapter One—I Am Born' and pad it to the right so that the resulting string is 40 characters in length.
 
-select rpad('0123456789',12,'.') from dual;
-select rpad('0123456789',12,'LONG_STRING') from dual;
-select rpad('0123456789',10,'.') from dual;
-select rpad('0123456789',5,'.') from dual;
-select rpad('0123456789',0,'.') from dual;
-select rpad('0123456789',-1,'.') from dual;
-select rpad('0123456789',15) from dual;
+select rpad('0123456789',12,'.') from dual;             -- 01234567890.. RPads 2 . chars to make the total length 12
+select rpad('0123456789',12,'LONG_STRING') from dual;   -- 01234567890LO  Rpads the chars in the string, till the total length is reached. can be LONG_STRINGLONGSTRING
+select rpad('0123456789',10,'.') from dual;             -- The input stringis 10 chars, no Rpad needed.
+select rpad('0123456789',5,'.') from dual;              -- 01234, truncates the string to meet the length requirement.
+select rpad('0123456789',0,'.') from dual;              -- NULL desired lenght is 0, all of the input is truncated
+select rpad('0123456789',-1,'.') from dual;             -- NULL desired length is negative, but no error.
+select rpad('0123456789',15) from dual;                 -- uses the default "single space" char as padding
 
-select lpad('0123456789',5,'.') from dual;
-select lpad('0123456789',10,'.') from dual;
-select lpad('0123456789',12,'.') from dual;
+select lpad('0123456789',5,'.') from dual;              -- Truncates the string to 5 chars 
+select lpad('0123456789',10,'.') from dual;             -- No LPad needed desired string length is already met.
+select lpad('0123456789',12,'.') from dual;             -- Lpads 2 '.' chars to make the toatal length 12 chars.
 
 -- CONCAT & || 
 -- Syntax: CONCAT(s1, s2)
@@ -97,6 +97,7 @@ select concat('Hello',' there') || concat('! How''s it going','?') from dual;
 -- Syntax: LTRIM(s1, s2)
 --              RTRIM(s1, s2)
 -- Parameters: s1, s2—both are character strings. s1 is required, and s2 is optional—if omitted, it defaults to a single blank space.
+-- s2 is a 'strip list', after application s1 cannot begin(ltrim) or end(rtrim) with any of the chars in s2. 
 -- Process: Removes occurrences of the s2 characters from the s1 string, from either the left side of s1 (LTRIM) 
     -- or the right side of s1 (RTRIM) exclusively.
 -- Output: Character string.
@@ -104,11 +105,11 @@ select concat('Hello',' there') || concat('! How''s it going','?') from dual;
 -- basically ensures that the input string does not begin with or end with any of the characters in the S2.
 -- S2 is treated as "any char in this string" and not "match this literal string as-is"
 
-select LTRIM('AAABBAAABBBCC','A') from dual;
-select LTRIM('AAABBAAABBBCC','C') from dual;
-select LTRIM('AAABBAAABBBCC','ABC') from dual;
-select LTRIM('AAABBAAABBBCC','ACB') from dual;
-select LTRIM('AAABBAAABBBDCC','ACB') from dual;
+select LTRIM('AAABBAAABBBCC','A') from dual;            -- Strips the leftside A's. all of them.
+select LTRIM('AAABBAAABBBCC','C') from dual;            -- Nothing stripped, s1 does not have any leading C's
+select LTRIM('AAACCCBBAAABBBCC','ABC') from dual;       -- NULL. 'ABC' is a strip list, All A's are stripped, then C's and then B's, then A's, B's and C's
+select LTRIM('AAABBAAABBBCC','ACB') from dual;          -- NULL. Stripping the A's leaves a string with B, but B is also in the strip list...
+select LTRIM('AAABBAAABBBDCC','ACB') from dual;         -- DCC. Stripping stops when the string begins with D, which is not on the strip list
 
 select RTRIM('AAABBAAABBBCC','A') from dual;
 select RTRIM('AAABBAAABBBCC','C') from dual;
@@ -126,7 +127,7 @@ select RTRIM('AAABBAAABDBBCC','ACB') from dual;
 --     trim_char is a single character to be trimmed—if omitted, assumed to be a blank.
 --     trim_source is the source string—if omitted, the TRIM function will return a NULL.
 
--- Process: Same as LTRIM and RTRIM, with a slightly different syntax.
+-- Process: Same as LTRIM and RTRIM, with a slightly different syntax. ONLY CHAR IS ALLOWED IN THE TRIMSET!!!
 -- Output: Character string.
 -- If multiple chars are specified in the trim_char, then an error is thrown
 select TRIM(LEADING '0' FROM '000ABC123000') from dual;
@@ -216,7 +217,7 @@ select 'Hello' from Dual where substr('1234567890',5,0) IS null and substr('1234
 -- Output: If i is omitted, ROUND returns a value in the same numeric data type as n. If i is specified, ROUND returns a data type of NUMBER.
 
 -- Rounding works with the number of decimals desired. if desired decimals are more than available, nothing is done. 
--- Negative decimal points will round on the other side of the decimal.
+-- ~Negative decimal points will round on the other side of the decimal.
 select CEIL(5.5), FLOOR(5.5), ROUND(5.5),ROUND(5.49), ROUND(5.49,1),ROUND(5.49,3), ROUND(5.49e3,3),ROUND(555.49,-1), ROUND(555.49,-2)from Dual;
 -- Automatic type conversion works when numbers are quoted, including scientific 'e to the power' notation 
 select CEIL('5.5'), FLOOR('5.5'), ROUND('5.5'),ROUND('5.49'), ROUND('5.49',1),ROUND('5.49',3), ROUND('5.49e2',2) from Dual;
