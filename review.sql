@@ -501,7 +501,68 @@ Select median(hire_date),  to_char(AVG(ROUND(nvl(salary,0),2)),'L999,999.99'), M
 Select first_name, last_name, hire_date, salary,job_id, 
     RANK() over (partition by job_id order by salary,hire_date ) rnk 
 from hr.employees 
-order by job_id, salary, hire_date  ;
+order by job_id, rnk  ;
+
+-- WHERE Clause
+-- not mandatory, but if present should follow the FROM clause.
+-- !! Aggregate functions are not permitted in a where clause.
+-- LIKE can only work with scalar functions - single valued things.
+-- Operator precedence - NOT > AND > OR
+
+-- Here all NOT is evaluated first , so all records where manager!= 100 is selected.
+-- Now AND is evaluated - from the selected manager, the dept_id should be 90
+-- Now OR is evaluated. The existing set, or the JOB_IDs that start with AD.
+select * from hr.employees
+where JOB_ID  LIKE ('AD%') OR DEPARTMENT_ID=90 AND NOT  MANAGER_ID=100 
+
+-- BETWEEN
+-- The ranges are inclusive on both sides. 
+-- !! Should be lower to higher. BETWEEN 5 AND 1 returns 0 rows. while BETWEEN 1 and 5 is valid.
+
+-- IS NULL
+-- only valid check to use to check if a value is null. the equality operator(=) does not work with NULL.
+-- value = NULL check always returns false.
+
+-- VARIABLE SUBSTITUTIONS
+-- & will prompt for a variable thats used in a query (value or column definition)
+-- Its like text substitution, a y part can be replaced with a variable substitution, and then evaluated.
+-- !! watch for quoting - the var can be quoted, or the user response to the prompt can be quoted.
+
+-- DEFINE - defines a value for a variable, if the value exists, the user is not prompted. lifetime : session
+-- DEFINE without prams to list currently defined vars
+-- UNDEFINE removes the defintion of a variable.
+-- SET DEFINE ON wil enable substitution, 
+-- SET DEFINE <char> will change the var substitution char.
+-- SHOW DEFINE will print the char currently used for substitution.
+
+-- FETCH ... WITH TIES
+-- Syntax : FETCH [FIRST/NEXT] [num/default=1] [PERCENT/-] [ROW/ROWS] [ONLY/WITH TIES]
+-- the number is optional, defaults to 1. If percent is used, a number is required.
+-- ROW/ROWS are same and required.
+-- ONLY/ WITH TIES either is required. 
+-- WITH TIES will bring logical groups even if the number pr percentage specified is exceeded 
+
+-- !! ANALYTIC FUNCTIONS
+-- The analytic functions differ from AGG func becasue they return multiple rows per group, where agg funcs return one row per group
+-- They are evaluated just before the final ORDER BY, and after GROUP BY, WHERE, HAVING etc. so they can appear only in select or ORDER BY
+-- ORDER BY for the analytic functions's window is unrelated to the ORDER BY for the query
+-- ROW_NUMBER() is an analytic function and is sperate from ROWNUM, which is an internal oracle data type.
+-- PS : Top -n queries that use select * order by something  where ROWNUM < 5 is trouble, becasue ROWRUM is assigned before orderby.
+--   Doing the same thing over a view is okay if the innner query does the order by nad outter does the ROWnum.
+
+-- In selet statements, you can run an analytic function without group by using the OVER clause.
+-- Syntax : <SUM/AVG/COUNT/other agg func> OVER ( PARTITION BY COL_NAME / ORDER BY COL NAME ROWS BETWEEN n PRECEEDING AND m FOLLOWING)
+-- The PARTITION BY or ORDER BY is required, both can be used (actully makes sense to always have an order by here to get predictable results)
+--  The default windowing clause is ROWS UNBOUNDED PRECEDING. => all preceding rows.
+--   This is an anchored window - anchored to the start of the rows.
+-- You can do a sliding window using the  ROWS/RANGE BETWEEN ... AND ... 
+-- Windows can be done using RANGE 
+select First_name, last_name, Salary, JOB_ID, avg(salary) OVER ( PARTITION BY JOB_ID ORDER BY HIRE_DATE RANGE 90 PRECEDING) from hr.employees
+
+    -- The query above wil provide the name, and salary of the current row together with 
+    --the avg salary of all previous rows in this group whose HIRE_DATE value falls within 90 days preceding the HIRE_DATE value of the current row.
+-- LAG and LEAD
+-- works with windows only 
 
 
 -- GROUP BY identifies subsets of rows within the larger set of rows being considered by the SELECT statement.
