@@ -165,7 +165,7 @@ select INSTR('123AAA7A9','AA',1,2) FROM DUAL;
 -- second occurence of AA = 0 i.e. does not exist in the input string
 select INSTR('1234AA7A9','AA',1,7) FROM DUAL; 
 
--- first occurence of A on or after the 0th position = 0
+-- first occurence of A on or after the 0th position = 0. Startting from 0 will always fail to find the substring.
 select INSTR('1234AA7A9','A',0,1) FROM DUAL; 
 
 -- 0th occurence of A on or after the 1st position = ERROR
@@ -196,8 +196,15 @@ select substr('1234567890',5,2) from dual;
 --  zero based indexes work here, returns the first char
 select substr('1234567890',0),substr('1234567890',1,1),substr('1234567890',0,1) from dual;    
 
+-- negative pos will start from the end
+-- yeilds 7, picks the fourth char from the end, and 1 char long
+select substr('1234567890',-4,1) from dual;
+-- yields 7890, picks the 4th char from the end and ties to pick 8 chars, but the input string runs out before that.
+select substr('1234567890',-4,8) from dual;
+
 -- negaive or zero lengths will give a NULL. No errors
 select substr('1234567890',5,0), substr('1234567890',5,-1) from dual;
+-- Just to prove that its actually a NULL thats returned
 select 'Hello' from Dual where substr('1234567890',5,0) IS null and substr('1234567890',5,-1) is null;
 
 -- CEIL
@@ -239,6 +246,11 @@ select CEIL('21-NOV-18'),CEIL('A') from Dual;
 -- without the decimal, it pretty much works like a FLOOR, with the decimal, ir takes away the number of significant digits, and rounds then to 0.
 select TRUNC(5.5),TRUNC(5.49), TRUNC(5.49,1),TRUNC(5.49,3), TRUNC(5.49e3,3),TRUNC(555.49,-1), TRUNC(555.49,-2)from Dual;
 
+-- !!! NEGATIVE NUMBERS !!!
+-- TRUNC, FLOOR AND ROUND work diffrently - this is where they are different.
+-- TRUNC does not care for the sign. to do this imagine that the sign is removed. TRUNC(-5.5) = -5 ; TRUNC(-x) = -TRUNC(x)
+-- FLOOR/CEIL goes to the smaller/higher number, and for negative numbers too. the sign is important. FLOOR (-5.5) = -6, and CEIL(-5.5) = -5
+-- ROUND on the other hand behaves like TRUNC. ROUND(-5.5) = -6 (although -6 is rounding down), and ROUND(5.5) = 6 (rounding up). ROUND(-x) = -ROUND(x)
 
 -- ROUND—Date
 -- Syntax: ROUND(d, i)
@@ -305,8 +317,8 @@ select ADD_MONTHS('27-Feb-2018',-1), ADD_MONTHS('28-Feb-2018',-1),ADD_MONTHS('28
 
 -- TO_NUMBER
 -- Syntax: TO_NUMBER(e1, format_model, nls_parms)
-            -- NLS_NUMERIC_CHARACTERS = 'dg'	d = decimal character (see D in Table 6-1)
-            -- g = group separator (see G in Table 6-1)
+            -- NLS_NUMERIC_CHARACTERS = 'dg' (always in that order - first char is decimal, second is group)
+            -- d = decimal character , g = group separator 
             -- NLS_CURRENCY = 'text'	text = local currency symbol (see L in Table 6-1)
             -- NLS_ISO_CURRENCY = 'currency'	currency = international currency symbol
 -- G and D used in the format model. the nls chars param set the "redefined" vaues for G and D. 
