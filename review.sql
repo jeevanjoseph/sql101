@@ -383,6 +383,31 @@ Select CASE NULL when NULL THEN 'CASE : NULL == NULL' ELSE 'CASE : NULL !=NULL' 
 
 -- Searched CASE, where a proper IS NULL check is employed, this returs NULL IS NULL as expected
 Select CASE WHEN NULL IS NULL THEN 'CASE : NULL IS NULL' ELSE 'CASE : NULL IS NOT NULL' END from Dual;
+
+-- the expressions in case can reference only existing columns or data. 
+-- for example, to list the employees with thier salaries and compare thier salaries with the avg for the job,
+-- you could do this: (does not work)
+
+select first_name, last_name, job_id, salary, avg(salary) over (partition by job_id) avg_for_job,
+case 
+    when salary < avg_for_job then 'underpaid'
+    when salary > avg_for_job then 'overpaid'
+    else 'on average'
+end pay_rate    
+from employees;
+
+-- this does not work since the avg_for_job alias cannot be referenced from the case.
+-- This works :
+select first_name, last_name, job_id, salary, avg(salary) over (partition by job_id) avg_for_job,
+case 
+    when salary < avg(salary) over (partition by job_id) then 'underpaid'
+    when salary > avg(salary) over (partition by job_id) then 'overpaid'
+    else 'on average'
+end pay_rate    
+from employees;
+
+
+
 -- DECODE, where NULL values are compared -- IS NULL not used -- return true. This is out of the ordinary. 
 Select DECODE(NULL,NULL,'DECODE: NULL==NULL','DECODE: NULL!=NULL') from Dual;
 
@@ -626,6 +651,17 @@ group by dept.department_name, dept.manager_id, mgr.first_name
 -- rows and the group by processes the filtered rows. The having clause sees the 
 -- filtered data from the where clause/
 order by total desc
+
+
+-- FLASHBACK
+-- Can restore a dropped table or an existing table.
+-- When restored, all indexes other than bitmap join indexes and all constriants other than FK constrinats are recovered.
+    -- other db objects like views or synomymns are not dropped or restored. obviously FLASHBACK TABLE, does not flashback a view/synonym
+-- If the user purges the recyclebin, then nothing can be restored.
+-- Objects can be restored to a timestamp, a SCN, a RESTORE POINT, or "Before Drop"
+    -- If the original name of teh object is in used at the time of restore, then rename to needs to be used, else error.
+    -- on successful restore, its removed from recylce bin
+
 
 
 -- Examples for testing queries as well as data dictionary. 
