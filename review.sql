@@ -11,7 +11,7 @@
     -- Users & Roles
     -- Public Synonymns
     -- Schema Objects
-        -- NS for indexed
+        -- NS for indexes
             -- Indexes
         -- NS for contraints
             -- Constraints
@@ -657,6 +657,7 @@ order by total desc
 -- Can restore a dropped table or an existing table.
 -- When restored, all indexes other than bitmap join indexes and all constriants other than FK constrinats are recovered.
     -- other db objects like views or synomymns are not dropped or restored. obviously FLASHBACK TABLE, does not flashback a view/synonym
+-- privileges are restored when using FLASHBACK. 
 -- If the user purges the recyclebin, then nothing can be restored.
 -- Objects can be restored to a timestamp, a SCN, a RESTORE POINT, or "Before Drop"
     -- If the original name of teh object is in used at the time of restore, then rename to needs to be used, else error.
@@ -746,6 +747,8 @@ from emp
 select * from emp_details;
 
 
+
+
 -- METADATA Tables and Views.
 
 -- all DDL (not DML) statements affect the data dictionary
@@ -819,3 +822,39 @@ INSERT ALL
 select * from emp_managers;
 select * from emp_department;
 select * from emp_department_mgr;
+
+
+
+-- SYSYEM PRIVILEGES
+-- are privileges on the DB as a whole, not a particular object.
+-- Creating a db object like a table is a system privilege.
+--  Creating an index is an object privilege since the index is created on the table's columns. Creating INDEXTYPE is a system privilege
+-- Syntax : GRANT [privilege, previlege / ALL PRIVILEGES] TO [user,user, role] (WITH ADMIN OPTION)
+-- ADMIN OPTION lets a user grant the same privilege to another user.
+-- REVOKE privilege works the same way, and uses the word FROM isntead of TO.
+--      Revocations do not cascade. Provileges granted with ADMIN OPTION has to be explicitly revoked.
+-- PUBLIC - is an special user, to whom when provileges are granted, all users get the privilege.
+-- To grant all provileges to some user - GRANT ALL PROVILEGES TO user (WITH ADMIN OPTION)
+-- To grant some privileges to all users - GRANT provilege to PUBLIC (WITH ADMIN OPTION)
+
+
+-- OBJECT PRivileges
+-- the owner of an object (TABLE, VIEW, SYNONYM) has all provileges to grant it to someone else
+-- users who have system provileges like SELECT_ANY_TABLE also has privileges.
+--  All DML - INSERT UPADTE DELETE SELECT has provileges. There is NO SPECIAL PROVILEGE FOR MERGE - Its covered by INSERT, UPDATE, DELETE
+-- Although a user owns a table, the user still needs the CREATE PUBLIC SYNONYM to create a public synonym
+-- even if a public synonym exists, a user needs provileges on the underlying object to use it .
+-- 
+-- Grant privilege on object to user with grant option.
+-- For object privileges, the keyword that gives the grantee the ability to propagate the privilege is WITH GRANT OPTION
+-- When a privilege granted with GRANT OPTION is revoked, then the revocation cascades. all further users that got the privilege will lose it.
+-- this is unlike system privileges, where once you got it, it has to be explicitly removed from the user.
+-- ALL PRIVILEGES
+    -- GRANT ALL PRIVILEGES ON object TO user
+    -- unlike the system privilege version, here the precense of 'ON object' tells us that this is all object provileges.
+    -- !! Note that for object provileges, the keyword provileges os not required. GRANT ALL ON obj to user will work
+    -- the PRIVILEGES keyword is mandatory in the system privilege case.
+-- if a table is dropped and recreated, its a new table, the privileges, indexes etc will need to be re-created.
+    -- however if the tabel is flashback'd then the privileges are restored.
+-- if a user has privilege on an object due to a direct privilege grant as well as a role, then
+-- the user still has access to the object if atleast one of the paths for access is still valid.    
