@@ -25,6 +25,13 @@
     -- need to ensure the brackets for column definitions, the commas and a final semicolon
     -- Constraints can be added in-line or at the end. EXCEPT for NOT NULL. thats possible only with INLINE
     -- Inline constraints can be named using the CONSTRAINT keyword. 
+    -- the inline INVISIBLE keyworkd makes a column invisible. 
+        -- it disappears from the DESC, and select *
+        -- can be selected/inserted by specifying the name in a select query.
+        -- For insert, the columns have to be specified in the form  INSERT INTO tablename(col,col,inviscol) Values (val1,val2,val3).
+        -- can be made visible in a view by the view's select statement naming the column
+        -- If a view is using the select * (without naming the invisible cols), then the a select from the view that names the inviscol does not work
+        -- For a view to have acceess to the invis col, it has to be named in the view's select.
 
 -- DATA TYPES
     -- CHAR(n). Fixed, shorter entries are RPADed with spaces. n is optional and assumed to be one. n<=2000
@@ -61,6 +68,42 @@
         -- Once a commit is done, savepoints are erased and using them is an error.
         -- 
 
+-- VIEWS
+-- Any select statement can be used
+-- Should have valid column aliases
+-- use the OR REPLACE keywords to replace an exisitng view with the same name without warning
+-- the view should contain enough columns to satisfy the tables' constraints to be updatable.
+-- if a view does not have a NOT NULL column from an underlying table, then you still maybe able to UPDATE or DELETE, but not insert
+-- A view's select statement cannot be updated with ALTER VIEW. ALTER VIEW can be used to recompile a view explicitly.
+-- You cannot INSERT update or delete from a view that uses 
+    -- aggregate functions or group by or analytic queries with analyticFn() over()
+    -- distinct keyword
+    -- mostly all joins and subsqueries
+-- For example : the following  is a view on the employee table alone, and selects all the non null columns
+-- but also adds a rank column. But even if you dont want to insert in to this, updating via this view is not allowed
+create or replace view HR_TEST as 
+select employee_id,
+        first_name, 
+        last_name,email,
+        hire_date, 
+        job_id, 
+        department_id, 
+        rank() over(order by department_id) avg_sal 
+    from employees; 
+-- This query tries to insert only the non null columns, but FAILS !
+insert into hr_test(employee_id,first_name,last_name, email, hire_date, job_id)
+     values(EMPLOYEES_SEQ.nextval,'JOE','SMITH','JSMITH001',SYSDATE,'IT_PROG');
+
+-- Change the view to not have the analytic function like so :
+create or replace view HR_TEST as 
+select employee_id,
+        first_name, 
+        last_name,email,
+        hire_date, 
+        job_id, 
+        department_id
+    from employees; 
+-- Now the same query above will work.
 
 -- LPAD and RPAD
 -- Syntax: LPAD(s1, n, s2)
