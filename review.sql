@@ -358,6 +358,10 @@ select ADD_MONTHS('27-Feb-2018',1), ADD_MONTHS('28-Feb-2018',1),ADD_MONTHS('28-F
 -- subtracting months works the same way
 select ADD_MONTHS('27-Feb-2018',-1), ADD_MONTHS('28-Feb-2018',-1),ADD_MONTHS('28-Feb-2020',-1),ADD_MONTHS('29-Feb-2020',-1) from dual ;
 
+-- MONTHS BETWEEN
+-- returns the months between the two input dates .
+-- if the first month is smller than the second, a negative number is retrned.
+
 -- TO_NUMBER
 -- Syntax: TO_NUMBER(e1, format_model, nls_parms)
             -- NLS_NUMERIC_CHARACTERS = 'dg' (always in that order - first char is decimal, second is group)
@@ -591,6 +595,57 @@ where JOB_ID  LIKE ('AD%') OR DEPARTMENT_ID=90 AND NOT  MANAGER_ID=100
 -- only valid check to use to check if a value is null. the equality operator(=) does not work with NULL.
 -- value = NULL check always returns false.
 
+-- EXISTS, NOT EXISTS, IN and NOT IN
+-- You cannot chek a column with exists, you say select ... from ... where exists (query). Not where col_name exists (query)
+-- You are not looking for values retrned from the subquery. Just the fact if any rows are reurned.
+-- So EXISTS will evaluate to true when if select count(*) from (subquery) would be > 0
+-- For example :
+Select * from dept where exists (select null from dual);
+-- will return all rows in dept because ?:
+    -- select null from dual returns 1 row. the value in that one rw is null, but the value is immaterial.
+    -- select count(*) from (select null from dual)  = 1, so a row is returned, and so exists evaluates to true
+    -- there are no other conditions, so the query is effectively select * from dept where true => select * from 
+    -- Any subquery that is guaranteed to return a row - like a select count(), or select literal from dual will make exists evaluate to true.  
+-- NOT EXISTS negates this.
+    -- it will evaluate to true only if the subquery returns no rows.
+    -- No rows DOES NOT MEAN the value 0 or null.
+    -- for example
+select * from hr.employees e where not exists (select null from dual where 1=2)
+    -- will return all rows, because the subquery returns no rows (due to the where clause of 1=2)
+    -- this makes the NOT EXISTS evaluate to true.
+    -- However the folowing query returns nothing
+select * from hr.employees e where not exists (select count(null) from dual where 1=2)
+    -- This is because even though we have an impossible where clause in the subquery (1=2), the subquery is doing a count
+    -- The count returns 0 - which is A ROW !!! - again the value is immaterial. the fact is that a row was returned.
+    -- this means EXISTS evaluates to true, and NOT exists evaluates to FALSE.
+    -- query reduced to :  select * from hr.employees e where FALSE => no rows. 
+    -- because selecting anything with a condition of 'where false' gives no rows. 
+-- IN and NOT IN
+-- These are simialr to EXISTS/NOT exists, but not the same, especially when it comes to NULLS
+-- The first thing is that IN checks the value of a column with a set of values from the subquery. VALUES. not the presence or abcense of rows
+-- select .. from .. where col_name IN (subquery)
+-- IN also evaluates equality using the = operator. so col IN null => false.
+-- an IN query cn be reuced to a sequence of OR operations .
+-- for example :
+select * from hr.departments where department_id IN (10,20,NULL)
+    -- Here each candidate row from departments is evaluated aginst the list (could be a select query as well )
+    -- the IN clause expands to : where department_id = 10 OR department_id = 20 OR department_id = NULL
+    -- For candidate rows wwith dept id 10 , and 20 , the where caluse evaluates to TRUE. these are included.
+    -- The  department_id = NULL will evaluate to false every single time. 
+    -- but this is okay because we are doing an OR, and we just need any of the conditions to be true to pick the row.
+-- NOT IN works the same, except it flips the ORs to ANDs.
+select * from hr.departments where department_id NOT IN (10,20,NULL)
+    -- will return nothing. NOT IN (...,...,NULL,...) => if there is a null value in the IN list, NOT IN will never return anything.
+    -- THats because the query expands to :
+        -- department_id != 10 AND department_id!=20 AND department_id!=NULL
+        -- the same == or != is used for equality checks, but this time we have the AND operator.
+        -- Nothing is = NULL and nothing is != null (not even null ! thats why the IS NULL thig exists, but its not used here ) 
+        -- The expression will alwasy boil down to (true/false) AND (true/false) AND (false) -- tha last one is false for all rows because it does != NULL
+        -- Since the operator is AND, a single false makes the whole expression false.
+        -- query boils down to => where department_id != 10 AND department_id!=20 AND department_id!=NULL => where false => no rows returned.
+
+
+
 -- VARIABLE SUBSTITUTIONS
 -- & will prompt for a variable thats used in a query (value or column definition)
 -- Its like text substitution, a y part can be replaced with a variable substitution, and then evaluated.
@@ -705,6 +760,16 @@ order by total desc
 -- Objects can be restored to a timestamp, a SCN, a RESTORE POINT, or "Before Drop"
     -- If the original name of teh object is in used at the time of restore, then rename to needs to be used, else error.
     -- on successful restore, its removed from recylce bin
+
+-- SET OPERATORS
+-- There is no operator precendence. LHS op RHS in the order of occurence. 
+-- A isect B union C minus D union all E
+-- Set A and B computed, isect'd -> result union'd with set C -> result disjointed with set D -> result union all'd with set E
+-- All set operators eliminate dupes, except UNION ALL
+--  (1,1,2,3) isect (1,2) => (1,2)
+--  (1,1,2,2) minus (1,2) => ()
+--  (1,1,3,3) union (1,1,3,3) => (1,3)
+-- !! (1,1,3,3) union ALL (1,1,3,3) => (1,1,1,1,3,3,3,3)
 
 
 
@@ -846,6 +911,8 @@ select * from user_col_comments where table_name = 'EMP'
 create table emp_managers  (emp_name varchar2(30), manager_name varchar2(30));
 create table emp_department (emp_name varchar2(30), department_name varchar2(30));
 create table emp_department_mgr (emp_name varchar2(30), department_name varchar2(30),manager varchar2(30));
+
+-- Note that using a sequence in the select statement for the multitable insert is an error
 
 -- the first table omits the column names, so all columns are assumed in the table order. 
 -- will fail if the values clause does not have data for all columns
